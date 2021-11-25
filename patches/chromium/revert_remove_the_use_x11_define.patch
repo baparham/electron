@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Shelley Vohr <shelley.vohr@gmail.com>
+Date: Thu, 25 Nov 2021 14:19:28 +0100
+Subject: revert: remove the USE_X11 define
+
+Reverts https://chromium-review.googlesource.com/c/chromium/src/+/3290415.
+
+We haven't yet completed https://github.com/electron/electron/issues/31382
+and until this is done should retain the define.
+
+This shuold be removed when the above issue is closed.
+
+diff --git a/build/config/BUILD.gn b/build/config/BUILD.gn
+index 3927f0964f13ed0bbcc5a89f3e2fe8d0bafe27aa..bb3d98e7895e6c5ae1612deb66e58131c46e46f5 100644
+--- a/build/config/BUILD.gn
++++ b/build/config/BUILD.gn
+@@ -66,6 +66,9 @@ config("feature_flags") {
+   if (use_nss_certs) {
+     defines += [ "USE_NSS_CERTS=1" ]
+   }
++  if (use_x11) {
++    defines += [ "USE_X11=1" ]
++  }
+   if (use_ozone && !is_android) {
+     # Note that some Chrome OS builds unconditionally set |use_ozone| to true,
+     # but they also build some targets with the Android toolchain. This ensures
+diff --git a/ui/gtk/gtk_ui.cc b/ui/gtk/gtk_ui.cc
+index 62b05ec373fd1727dedc4429f6770920cf92aa98..83e7765ed1bd915d3d7ac273ceeb9a719a1d7f19 100644
+--- a/ui/gtk/gtk_ui.cc
++++ b/ui/gtk/gtk_ui.cc
+@@ -79,7 +79,7 @@
+ #if BUILDFLAG(OZONE_PLATFORM_WAYLAND)
+ #define USE_WAYLAND
+ #endif
+-#if BUILDFLAG(OZONE_PLATFORM_X11)
++#if BUILDFLAG(OZONE_PLATFORM_X11) && !defined(USE_X11)
+ #define USE_X11
+ #endif
+ 
